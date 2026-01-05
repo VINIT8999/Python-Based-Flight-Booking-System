@@ -1,0 +1,221 @@
+# ---------------IMPORT FUNCTION
+
+import random
+import datetime
+
+# ---------------- FLIGHTS DATA ------------------
+bookings = {}
+
+companies = {
+
+    "SkyJet": {
+        "SJ101": {"route": "Pune to Delhi", "price": 4500, "seats": random.randint(3, 10)},
+        "SJ102": {"route": "Pune to Mumbai", "price": 2500, "seats": random.randint(3, 10)},
+        "SJ103": {"route": "Pune to Nagpur", "price": 2800, "seats": random.randint(3, 10)},
+        "SJ104": {"route": "Pune to Bangalre", "price": 4200, "seats": random.randint(3, 10)},
+        "SJ105": {"route": "Pune to Hyderabad", "price": 4000, "seats": random.randint(3, 10)}
+    },
+
+    "AirNova": {
+        "AN201": {"route": "Mumbai to Delhi", "price": 4800, "seats": random.randint(3, 10)},
+        "AN202": {"route": " Mumbai to Chennai", "price": 5200, "seats": random.randint(3, 10)},
+        "AN203": {"route": "Mumbai to Bangalore", "price": 5000, "seats": random.randint(3, 10)},
+        "AN204": {"route": "Mumbai to Pune", "price": 2200, "seats": random.randint(3, 10)},
+        "AN205": {"route": "Mumbai to Ahmedabad", "price": 3000, "seats": random.randint(3, 10)}
+    },
+
+    "FlyHigh": {
+        "FH301": {"route": "Delhi to Bangalore", "price": 5600, "seats": random.randint(3, 10)},
+        "FH302": {"route": " Delhi to Pune", "price": 4300, "seats": random.randint(3, 10)},
+        "FH303": {"route": "Delhi to Jaipur", "price": 3100, "seats": random.randint(3, 10)},
+        "FH304": {"route": "Delhi to Mumbai", "price": 4900, "seats": random.randint(3, 10)},
+         "FH305": {"route": "Delhi to Kolkata", "price": 5300, "seats": random.randint(3, 10)}
+    },
+
+ 
+    "Indigo": {
+        "IN401": {"route": "Pune to Chenai", "price": 4600, "seats": random.randint(3, 10)},
+        "IN402": {"route": "Mumbai to Goa", "price": 3500, "seats": random.randint(3, 10)},
+        "IN403": {"route": "Delhi to Pune", "price": 4400, "seats": random.randint(3, 10)},
+        "IN404": {"route": "Bangalore to Hyderabad", "price": 3000, "seats": random.randint(3, 10)},
+        "IN405": {"route": "Chennai to Kolkata", "price": 5200, "seats": random.randint(3, 10)}
+    }
+}
+
+# ---------------- DISCOUNT ----------------
+discount = lambda price: price - (price * 0.10)
+
+# ---------------- FUNCTIONS -------------
+
+def show_companies():
+    print("\nAvailable Companies:")
+    for c in companies:
+        print("-", c)
+
+
+def show_flights(company):
+    print("\nFlights from", company)
+    for fid, d in companies[company].items():
+        print(fid, "|", d["route"], "| Price:", d["price"], "| Seats:", d["seats"])
+
+
+def check_flights():
+    show_companies()
+    company = input("Enter company name: ")
+    if company in companies:
+        show_flights(company)
+    else:
+        print("Invalid company")
+
+def upi_payment(amount):
+    stored_upi_id = "vinit@upi"
+    stored_upi_pin = 8999
+    balance = 500000
+
+    print("\n---- UPI PAYMENT SYSTEM ----")
+    print("Available Balance:", balance)
+
+    upi_id = input("Enter UPI ID: ")
+    if upi_id != stored_upi_id:
+        print("Invalid UPI ID")
+        return False
+
+    upi_pin = int(input("Enter UPI PIN: "))
+    if upi_pin != stored_upi_pin:
+        print("Wrong PIN")
+        return False
+
+    if balance < amount:
+        print("Insufficient balance")
+        return False
+
+    balance -= amount
+    print("Payment Successful")
+    print("Amount Paid:", amount)
+    print("Remaining Balance:", balance)
+    return True
+
+
+
+def book_flight():
+    name = input("Enter passenger name: ")
+
+    show_companies()
+    company = input("Select company: ")
+
+    if company not in companies:
+        print("Invalid company")
+        return
+
+    show_flights(company)
+    flight_id = input("Enter flight ID: ")
+
+    if flight_id not in companies[company]:
+        print("Invalid flight ID")
+        return
+
+    seat_count = int(input("Enter number of seats to book: "))
+
+    available_seats = companies[company][flight_id]["seats"]
+    if available_seats < seat_count:
+        print("Not enough seats available")
+        return
+
+    price = companies[company][flight_id]["price"]
+    total_price = discount(price * seat_count)
+
+    print("Total price after discount:", total_price)
+
+    # ---- PAYMENT ----
+    if not upi_payment(total_price):
+        print("Booking Failed due to payment")
+        return
+
+    seats = []
+    for _ in range(seat_count):
+        row = random.randint(1, 30)
+        seat = str(row) + random.choice(["A", "B", "C", "D", "E", "F"])
+        seats.append(seat)
+
+    booking_id = random.randint(1000, 9999)
+    booking_time = datetime.datetime.now()
+
+    bookings[booking_id] = {
+        "Name": name,
+        "Company": company,
+        "Flight": flight_id,
+        "Seats": seats,
+        "Total Seats": seat_count,
+        "Total Price": total_price,
+        "Booking Date": booking_time.date(),
+        "Booking Time": booking_time.strftime("%H:%M:%S")
+    }
+
+    companies[company][flight_id]["seats"] -= seat_count
+
+    print("\nBooking Successful ")
+    print("Booking ID:", booking_id)
+    print("Seats Allocated:", seats)
+    print("Total Price:", total_price)
+    print("Date:", booking_time.date())
+    print("Time:", booking_time.strftime("%H:%M:%S"))
+
+# ---------- FOR CHEACKING BOOKINGS
+
+def check_booking():
+    booking_id = int(input("Enter booking ID: "))
+    if booking_id in bookings:
+        for k, v in bookings[booking_id].items():
+            print(k, ":", v)
+    else:
+        print("Booking not found")
+
+# ------- FOR CANCEL BOOKING
+def cancel_booking():
+    booking_id = int(input("Enter booking ID: "))
+    if booking_id in bookings:
+        company = bookings[booking_id]["Company"]
+        flight = bookings[booking_id]["Flight"]
+        companies[company][flight]["seats"] += 1
+        del bookings[booking_id]
+        print("Booking cancelled")
+    else:
+        print("Booking not found")
+
+# ------- FOR A CHEAKING OF BOOKING
+def view_all_bookings():
+    if not bookings:
+        print("No bookings available")
+    else:
+        for bid, info in bookings.items():
+            print("\nBooking ID:", bid)
+            for k, v in info.items():
+                print(k, ":", v)
+
+
+while True:
+    print("\n--- Flight Booking System ---")
+    print("1. Check Flights")
+    print("2. Book Flight")
+    print("3. Check Booking")
+    print("4. Cancel Booking")
+    print("5. View All Bookings")
+    print("6. Exit")
+
+    choice = int(input("Enter choice: "))
+
+    if choice == 1:
+        check_flights()
+    elif choice == 2:
+        book_flight()
+    elif choice == 3:
+        check_booking()
+    elif choice == 4:
+        cancel_booking()
+    elif choice == 5:
+        view_all_bookings()
+    elif choice == 6:
+        print("Thank you")
+        break
+    else:
+        print("Invalid choice")
